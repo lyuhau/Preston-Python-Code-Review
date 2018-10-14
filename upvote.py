@@ -3,6 +3,10 @@ def upvote(request, ans_id):
     submission = get_object_or_404(Submission, pk=ans_id)
     sub_topic = submission.topic.id
 
+    if request.method != 'POST':
+        messages.error(request, "You shouldn't try to do stuff without a POST request...")
+        return redirect('/debates/' + str(sub_topic))
+
     vote_type_map = {
         'DM': { 'key': 'dem_votes',   'name': 'Democrat' },
         'LP': { 'key': 'libp_votes',  'name': 'Libertarian(party)' },
@@ -18,29 +22,25 @@ def upvote(request, ans_id):
     vte = person.student.vote_id
 
     if Vote.objects.filter(submit_id=ans_id,voter_id=request.user.id):
-        if request.method == 'POST':
-            if vte in vote_type_map:
-                key = vote_type_map[vte]['key']
-                name = vote_type_map[vte]['name']
+        if vte in vote_type_map:
+            key = vote_type_map[vte]['key']
+            name = vote_type_map[vte]['name']
 
-                submission.__dict__[key] -= 1
-                submission.save(update_fields=[key])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, f"Your vote has been removed from the {name} tally.")
-            else:
-                messages.error(request, "Something happened when removing your upvote!")
+            submission.__dict__[key] -= 1
+            submission.save(update_fields=[key])
+            v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
+            v.delete()
+            messages.error(request, f"Your vote has been removed from the {name} tally.")
         else:
-            messages.error(request, "You shouldn't try to do stuff without a POST request...")
+            messages.error(request, "Something happened when removing your upvote!")
     else:
-        if request.method == 'POST':
-            if vte in vote_type_map:
-                key = vote_type_map[vte]['key']
-                name = vote_type_map[vte]['name']
+        if vte in vote_type_map:
+            key = vote_type_map[vte]['key']
+            name = vote_type_map[vte]['name']
 
-                submission.__dict__[key] += 1
-                submission.save(update_fields=[key])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
-            else:
-                messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
+            submission.__dict__[key] += 1
+            submission.save(update_fields=[key])
+            Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+        else:
+            messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
     return redirect('/debates/' + str(sub_topic))
