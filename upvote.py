@@ -7,62 +7,41 @@ def upvote(request, ans_id):
     if Vote.objects.filter(submit_id=ans_id,voter_id=request.user.id):
         if request.method == 'POST':
             if vte == 'DM':
-                submission.dem_votes -= 1
-                submission.save(update_fields=['dem_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the Democrat tally.")
+                submission_key = 'dem_votes'
+                name = 'Democrat'
             elif vte == 'LP':
-                submission.libp_votes -= 1
-                submission.save(update_fields=['libp_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the Libertarian(party) tally.")
+                submission_key = 'libp_votes'
+                name = 'Libertarian(party)'
             elif vte == 'RP':
-                submission.gop_votes -= 1
-                submission.save(update_fields=['gop_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the Republican tally.")
+                submission_key = 'gop_votes'
+                name = 'Republican'
             elif vte == 'CL':
-                submission.left_votes -= 1
-                submission.save(update_fields=['left_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the center-left tally.")
+                submission_key = 'left_votes'
+                name = 'center-left'
             elif vte == 'CR':
-                submission.right_votes -= 1
-                submission.save(update_fields=['right_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the center-right tally.")
+                submission_key = 'right_votes'
+                name = 'center-right'
             elif vte == 'FL':
-                submission.fl_votes -= 1
-                submission.save(update_fields=['fl_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the far-leftt tally.")
+                submission_key = 'fl_votes'
+                name = 'far-left'
             elif vte == 'FR':
-                submission.fr_votes -= 1
-                submission.save(update_fields=['fr_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the far-right tally.")
+                submission_key = 'fr_votes'
+                name = 'far-right'
             elif vte == 'LI':
-                submission.libr_votes -= 1
-                submission.save(update_fields=['libr_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the libertarian(ideology) tally.")
+                submission_key = 'libr_votes'
+                name = 'libertarian(ideology)'
             elif vte == 'SD':
-                submission.sd_votes -= 1
-                submission.save(update_fields=['sd_votes'])
-                v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-                v.delete()
-                messages.error(request, "Your vote has been removed from the Social Democrat tally.")
+                submission_key = 'sd_votes'
+                name = 'Social Democrat'
             else:
                 messages.error(request, "Something happened when removing your upvote!")
                 return redirect('/debates/' + str(sub_topic))
+
+            submission.__dict__[submission_key] -= 1
+            submission.save(update_fields=[submission_key])
+            v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
+            v.delete()
+            messages.error(request, f"Your vote has been removed from the {name} tally.")
             return redirect('/debates/' + str(sub_topic))
         else:
             messages.error(request, "You shouldn't try to do stuff without a POST request...")
@@ -70,45 +49,39 @@ def upvote(request, ans_id):
     else:
         if request.method == 'POST':
             if vte == 'DM':
-                submission.dem_votes += 1```
-
-                ```submission.save(update_fields=['dem_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'dem_votes'
+                name = 'Democrat'
             elif vte == 'LP':
-                submission.libp_votes += 1
-                submission.save(update_fields=['libp_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'libp_votes'
+                name = 'Libertarian(party)'
             elif vte == 'RP':
-                submission.gop_votes += 1
-                submission.save(update_fields=['gop_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'gop_votes'
+                name = 'Republican'
             elif vte == 'CL':
-                submission.left_votes += 1
-                submission.save(update_fields=['left_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'left_votes'
+                name = 'center-left'
             elif vte == 'CR':
-                submission.right_votes += 1
-                submission.save(update_fields=['right_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'right_votes'
+                name = 'center-right'
             elif vte == 'FL':
-                submission.fl_votes += 1
-                submission.save(update_fields=['fl_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'fl_votes'
+                name = 'far-left'
             elif vte == 'FR':
-                submission.fr_votes += 1
-                submission.save(update_fields=['fr_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'fr_votes'
+                name = 'far-right'
             elif vte == 'LI':
-                submission.libr_votes += 1
-                submission.save(update_fields=['libr_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'libr_votes'
+                name = 'libertarian(ideology)'
             elif vte == 'SD':
-                submission.sd_votes += 1
-                submission.save(update_fields=['sd_votes'])
-                Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+                submission_key = 'sd_votes'
+                name = 'Social Democrat'
             else:
                 messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
                 return redirect('/debates/' + str(sub_topic))
+
+            submission.__dict__[submission_key] += 1
+            submission.save(update_fields=[submission_key])
+            Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
             return redirect('/debates/' + str(sub_topic))
         else:
             return redirect('/debates/' + str(sub_topic))
