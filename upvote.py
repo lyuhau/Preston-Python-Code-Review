@@ -28,13 +28,10 @@ def upvote(request, ans_id):
                 v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
                 v.delete()
                 messages.error(request, f"Your vote has been removed from the {name} tally.")
-                return redirect('/debates/' + str(sub_topic))
             else:
                 messages.error(request, "Something happened when removing your upvote!")
-                return redirect('/debates/' + str(sub_topic))
         else:
             messages.error(request, "You shouldn't try to do stuff without a POST request...")
-            return redirect('/debates/' + str(sub_topic))
     else:
         if request.method == 'POST':
             if vte in vote_type_map:
@@ -44,9 +41,6 @@ def upvote(request, ans_id):
                 submission.__dict__[key] += 1
                 submission.save(update_fields=[key])
                 Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
-                return redirect('/debates/' + str(sub_topic))
             else:
                 messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
-                return redirect('/debates/' + str(sub_topic))
-        else:
-            return redirect('/debates/' + str(sub_topic))
+    return redirect('/debates/' + str(sub_topic))
