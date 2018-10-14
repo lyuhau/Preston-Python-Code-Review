@@ -5,7 +5,7 @@ def upvote(request, ans_id):
 
     if request.method != 'POST':
         messages.error(request, "You shouldn't try to do stuff without a POST request...")
-        return redirect('/debates/' + str(sub_topic))
+        return redirect(f'/debates/{str(sub_topic)}')
 
     vote_type_map = {
         'DM': { 'key': 'dem_votes',   'name': 'Democrat' },
@@ -18,24 +18,24 @@ def upvote(request, ans_id):
         'LI': { 'key': 'libr_votes',  'name': 'libertarian(ideology)' },
         'SD': { 'key': 'sd_votes',    'name': 'Social Democrat' }
     }
-    person = request.user
-    vte = person.student.vote_id
-    if vte not in vote_type_map:
-        messages.error(request, "Something happened when removing your upvote!")
+    vote_type = request.user.student.vote_id
+    try:
+        key = vote_type_map[vote_type]['key']
+        name = vote_type_map[vote_type]['name']
+    except NameError:
+        messages.error(request, 'Something happened when removing your upvote!')
         messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
-        return redirect('/debates/' + str(sub_topic))
-    key = vote_type_map[vte]['key']
-    name = vote_type_map[vte]['name']
+        return redirect(f'/debates/{str(sub_topic)}')
 
-    if Vote.objects.filter(submit_id=ans_id,voter_id=request.user.id):
+    user_id = request.user.id
+    if Vote.objects.filter(submit_id=ans_id, voter_id=user_id):
         submission.__dict__[key] -= 1
         submission.save(update_fields=[key])
-        v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-        v.delete()
-        messages.error(request, f"Your vote has been removed from the {name} tally.")
+        Vote.objects.get(submit_id=submission.id, voter_id=user_id).delete()
+        messages.error(request, f'Your vote has been removed from the {name} tally.')
     else:
         submission.__dict__[key] += 1
         submission.save(update_fields=[key])
-        Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+        Vote.objects.create(submit_id=submission.id, voter_id=user_id)
 
-    return redirect('/debates/' + str(sub_topic))
+    return redirect(f'/debates/{str(sub_topic)}')
