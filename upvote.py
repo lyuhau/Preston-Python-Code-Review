@@ -24,20 +24,16 @@ def upvote(request, ans_id):
         messages.error(request, "Something happened when removing your upvote!")
         messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
         return redirect('/debates/' + str(sub_topic))
+    key = vote_type_map[vte]['key']
+    name = vote_type_map[vte]['name']
 
     if Vote.objects.filter(submit_id=ans_id,voter_id=request.user.id):
-        key = vote_type_map[vte]['key']
-        name = vote_type_map[vte]['name']
-
         submission.__dict__[key] -= 1
         submission.save(update_fields=[key])
         v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
         v.delete()
         messages.error(request, f"Your vote has been removed from the {name} tally.")
     else:
-        key = vote_type_map[vte]['key']
-        name = vote_type_map[vte]['name']
-
         submission.__dict__[key] += 1
         submission.save(update_fields=[key])
         Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
