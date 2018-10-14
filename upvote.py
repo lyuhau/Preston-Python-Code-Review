@@ -20,27 +20,26 @@ def upvote(request, ans_id):
     }
     person = request.user
     vte = person.student.vote_id
+    if vte not in vote_type_map:
+        messages.error(request, "Something happened when removing your upvote!")
+        messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
+        return redirect('/debates/' + str(sub_topic))
 
     if Vote.objects.filter(submit_id=ans_id,voter_id=request.user.id):
-        if vte in vote_type_map:
-            key = vote_type_map[vte]['key']
-            name = vote_type_map[vte]['name']
+        key = vote_type_map[vte]['key']
+        name = vote_type_map[vte]['name']
 
-            submission.__dict__[key] -= 1
-            submission.save(update_fields=[key])
-            v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
-            v.delete()
-            messages.error(request, f"Your vote has been removed from the {name} tally.")
-        else:
-            messages.error(request, "Something happened when removing your upvote!")
+        submission.__dict__[key] -= 1
+        submission.save(update_fields=[key])
+        v = Vote.objects.get(submit_id=submission.id,voter_id=request.user.id)
+        v.delete()
+        messages.error(request, f"Your vote has been removed from the {name} tally.")
     else:
-        if vte in vote_type_map:
-            key = vote_type_map[vte]['key']
-            name = vote_type_map[vte]['name']
+        key = vote_type_map[vte]['key']
+        name = vote_type_map[vte]['name']
 
-            submission.__dict__[key] += 1
-            submission.save(update_fields=[key])
-            Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
-        else:
-            messages.error(request, "You must select a political id to vote. Please follow the red 'Vote ID' link to choose.")
+        submission.__dict__[key] += 1
+        submission.save(update_fields=[key])
+        Vote.objects.create(submit_id=submission.id,voter_id=request.user.id)
+
     return redirect('/debates/' + str(sub_topic))
